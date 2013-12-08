@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<body>
+<p>please input binary number <input type="text" id="bin"> </p>
+<p>click a button and I give you decimal number <p>
+
+<button type="button" onclick="decimal()">Try it</button>
+
+<script>
+
+function decimal() {
+var str = document.getElementById("bin").value;
+var n = str.length;
+var number = 0;
+	for(var i = 0; i < n; i++)
+{
+if(str.charAt(i)=='1')
+	number += Math.pow(2,n-i);
+}
+document.write(number);
+}
+</script>
+
+</body>
+</html>
