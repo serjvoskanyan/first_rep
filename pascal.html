@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<body>
+<p>please input N <input type="text" id="pasc"> </p>
+<p>click a button and I give you first N linees of Pascal triagle <p>
+
+<button type="button" onclick="printTriagle()">Try it</button>
+
+<script>
+function pascal(row, element) 
+{	if (row > 1 && element > 0 && element < row) 
+return pascal(row - 1, element - 1) + pascal(row - 1, element) 
+else return 1; 
+} 
+    function printTriagle()
+    {
+var count = parseInt(document.getElementById("pasc").value);
+document.write("<Table align=center>"); 
+for (i=0; i<=count; i++) 
+{ 
+document.write("<Tr align=center>"); 
+for (j=1; j<=count-i; j++) document.write("<Td width=30></Td>"); 
+for (j=0; j<=i; j++) 
+document.write("<Td>" + pascal(i, j) + "<Td width=30>"); 
+} 
+document.write("</Table>"); 
+    }
+</script>
+
+</body>
+</html>
