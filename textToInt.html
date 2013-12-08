@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<body>
+<p> Integer number <input type="text" id="num"> </p>
+<button type="button" onclick="convert()">Convert text to integer</button>
+
+<script>
+
+function convert() {
+var str = document.getElementById("num").value;
+var n = str.length;
+var number = 0;
+	for(var i = 0; i < n; i++)
+{
+number += (str.charCodeAt(i) - "0".charCodeAt(0)) * Math.pow(10,n-i-1);
+}
+document.write(number);
+}
+</script>
+
+</body>
+</html>
