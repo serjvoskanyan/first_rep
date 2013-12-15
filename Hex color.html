@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function validateHexColor()
+{
+var color = document.getElementById("colorId").value;
+var validColor  = /^#[0-9 A-F a-f]{6}$/i.test(color);
+if(validColor)
+  alert("valid Hex color");
+  else alert("invalid Hex color!!!");
+}
+</script>
+</head>
+<body>
+Hex color <input type="text"  id="colorId">
+<input type="button" value="Submit" onClick="validateHexColor()">
+</body>
+</html>
