@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function validateGUID()
+{
+var GUID = document.getElementById("GUIDid").value;
+var validGUID  = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i.test(GUID);
+if(validGUID)
+  alert("valid GUID");
+  else alert("invalid GUID!!!");
+}
+</script>
+</head>
+<body>
+Enter GUID <input type="text" style="width:270px" id="GUIDid">
+<input type="button"  value="Submit" onClick="validateGUID()">
+</body>
+</html>
