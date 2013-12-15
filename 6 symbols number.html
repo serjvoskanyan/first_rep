@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function validateNumber()
+{
+var number = document.getElementById("numberId").value;
+var validNumber  = /^[1-9]\d{5}$/i.test(number);
+if(validNumber)
+  alert("valid number");
+  else alert("invalid number!!!");
+}
+</script>
+</head>
+
+<body>
+Enter 6 symbols number <input type="text"  id="numberId">
+<input type="button" value="Submit" onClick="validateNumber()">
+</body>
+</html>
