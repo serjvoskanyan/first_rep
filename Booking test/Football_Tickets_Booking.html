@@ -1,0 +1,147 @@
+<h2>Seat reservations (<span data-bind="text: reserveCount()"></span>)</h2>
+<table data-bind="visible: seats().length > 0">
+    <thead><tr>
+        <th>Name</th>
+        <th>Tribune</th>
+        <th>Row</th>
+        <th>Seat</th>
+        <th>Price</th>
+        <th></th>
+    </tr></thead>
+    <tbody data-bind="foreach: seats">
+        <tr>
+            <td><input type='text' data-bind="value: name" /></td>
+            <td>
+            <select data-bind="options: $root.tribunes, optionsText: 'type', value: tribune, optionsCaption: 'Please select...'"></select>
+            </td>
+            <td><input type='number' oninput='checkNumberRange(this)' data-bind="value: row, numeric: number" max="40" min="1"/></td>
+            <td><input type='number' oninput='checkNumberRange(this)' data-bind="value: seat, numeric: number" max="100" min="1"/></td>
+            <td data-bind="text: formattedPrice"></td>
+            <td><a href="javascript:void()" data-bind="click: $root.removeSeat">Remove</a></td>
+        </tr>    
+    </tbody>
+</table>
+
+
+<span> <button data-bind="click: addSeat">Reserve another seat</button>  
+<button data-bind="click: saveSeat ,visible: totalPrice()>0 "> Save</button>
+</span>
+<h3 data-bind="visible: totalPrice() > 0">
+    Total price: $<span data-bind="text: totalPrice()" ></span>
+
+</h3>
+
+
+<script src="knockout.js"></script>
+<script src="jquery.js"></script>
+<script>
+
+function checkNumberRange(object) {
+    if(object.value != "") {
+
+        var max = parseInt(object.max);
+        var min = parseInt(object.min);
+        var current = parseInt(object.value);
+
+        if (current > max)
+              object.value = object.max;
+          else if(current < min)
+            object.value = object.min;
+    }
+}
+
+function SeatReservation(name,tribune,row,seat) {
+    var self = this;
+    self.name = ko.observable(name);
+    self.row = ko.observable(row);
+    self.seat = ko.observable(seat);
+    self.tribune = ko.observable(tribune);
+
+    self.formattedPrice = ko.computed(function() {
+        return self.tribune() != undefined ? "$" + self.tribune().price : "None";       
+    });    
+}
+
+function BookingViewModel() {
+    var self = this;
+
+    self.tribunes = [
+        { id: "1", type: "East", price: 10 },
+        { id: "2", type: "West", price: 20 },
+        { id: "3", type: "South", price: 5 },
+        { id: "4", type: "North", price: 5 }
+    ];
+
+    self.row = ko.observable();
+    self.seat = ko.observable();    
+
+    // Editable data
+    self.seats = ko.observableArray([
+            new SeatReservation("","","","")
+        ]);
+    
+    self.reserveCount = ko.computed(function() {
+       var total = 0;
+       for (var i = 0; i < self.seats().length; i++) {
+           var currentSeat = self.seats()[i];
+           var tribune = currentSeat.tribune();
+           total += tribune != undefined && tribune.id != undefined && currentSeat.name() != ""
+            && currentSeat.row() != "" && currentSeat.seat() != "" ? 1 : 0;
+       }
+       return total;
+    });    
+
+    // Computed data
+    self.totalPrice = ko.computed(function() {
+       var total = 0;
+       for (var i = 0; i < self.seats().length; i++) {
+            var tribune = self.seats()[i].tribune();
+           total += tribune != undefined ? tribune.price : 0;
+       }
+       return total;
+    });    
+
+    // Operations
+    self.addSeat = function() {
+        self.seats.push(new SeatReservation("", "", "", ""));
+
+    }
+
+self.saveSeat = function() {
+    var current = self.seats()[self.seats().length - 1];
+    for(var i=0;i<self.seats().length-1;i++)
+        if(current.tribune()==self.seats()[i].tribune() && current.row()==self.seats()[i].row() && current.seat()==self.seats()[i].seat()) 
+            alert("This seat is reserved.Please select another seat \n" + "Tribune: " + current.tribune().type + "\n" + "Row: " + current.row() +"\n" + "Seat: " + current.seat());
+}
+    self.removeSeat = function(seat) { self.seats.remove(seat); }
+}
+
+
+$(function() {
+    ko.applyBindings(new BookingViewModel());
+});
+
+ko.bindingHandlers.numeric = {
+    init: function (element, valueAccessor) {
+        $(element).on("keydown", function (event) {
+            // Allow: backspace, delete, tab, escape, and enter
+            if (event.keyCode == 46 || event.keyCode == 8 || event.keyCode == 9 || event.keyCode == 27 || event.keyCode == 13 ||
+                // Allow: Ctrl+A
+                (event.keyCode == 65 && event.ctrlKey === true) ||
+                // Allow: home, end, left, right
+                (event.keyCode >= 35 && event.keyCode <= 39)) {
+                // let it happen, don't do anything
+                return;
+            }
+            else {
+                // Ensure that it is a number and stop the keypress
+                if (event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105)) {
+                    event.preventDefault();
+                }
+            }
+        });
+    }
+};
+</script>
+
+
