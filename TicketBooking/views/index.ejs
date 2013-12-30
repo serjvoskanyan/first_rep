@@ -1,0 +1,168 @@
+<html >
+<body>
+<link href="stylesheets/bootstrap.min.css" rel="stylesheet" media="screen">
+	<h2   class="text-center text-primary">Seat reservations (<span data-bind="text: reserveCount()"></span>)</h2>
+	<table class="table table-striped" data-bind="visible: seats().length > 0">
+	    <thead><tr class="success">
+	        <th>Name</th>
+	        <th>Tribune</th>
+	        <th>Row</th>
+	        <th>Seat</th>
+	        <th>Price</th>
+	        <th></th>
+	    </tr></thead>
+	    <tbody data-bind="foreach: seats">
+	        <tr>
+	            <td><input type='text' data-bind="value: name" /></td>
+	            <td>
+	            <select class="text-info" data-bind="options: $root.tribunes, optionsText: 'type', value: tribune, optionsCaption: 'Please select...'"></select>
+	            </td>
+	            <td><input type='number' oninput='checkNumberRange(this)' data-bind="value: row, numeric: number" max="<%= rowCount%>" min="1"/></td>
+	            <td><input type='number' oninput='checkNumberRange(this)' data-bind="value: seat, numeric: number" max="<%= seatCount%>" min="1"/></td>
+	            <td data-bind="text: formattedPrice"></td>
+	            <td><a href="javascript:void()" class="btn btn-warning" data-bind="click: $root.removeSeat">Remove</a></td>
+	        </tr>    
+	    </tbody>
+	</table>
+
+	<div style="text-align:center">
+	  <button type="button" class="btn btn-success" data-bind="click: addSeat">Reserve another seat</button>  
+	<button type="button" class="btn btn-primary" data-bind="click: saveSeat ,visible: totalPrice()>0 "> Save</button>
+	</div>
+	<h3 class="text-info" data-bind="visible: totalPrice() > 0">
+	    Total price: $<span data-bind="text: totalPrice()" ></span>
+	</h3>
+</body>
+
+<head>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="javascripts/bootstrap.min.js"></script>
+<script src="javascripts/knockout.js"></script>
+<script>
+
+	function checkNumberRange(object) {
+	    if(object.value != "") {
+
+	        var max = parseInt(object.max);
+	        var min = parseInt(object.min);
+	        var current = parseInt(object.value);
+
+	        if (current > max)
+	              object.value = object.max;
+	          else if(current < min)
+	            object.value = object.min;
+	    }
+	}
+
+	function SeatReservation(name,tribune,row,seat) {
+	    var self = this;
+	    self.name = ko.observable(name);
+	    self.row = ko.observable(row);
+	    self.seat = ko.observable(seat);
+	    self.tribune = ko.observable(tribune);
+
+	    self.formattedPrice = ko.computed(function() {
+	        return self.tribune() != undefined ? "$" + self.tribune().price : "None";       
+	    });    
+	}
+
+	function BookingViewModel() {
+	    var self = this;
+	    var tribunesClient = <%- tribunes %>;
+
+	    self.tribunes = [];
+
+	    for(var i in tribunesClient)
+	    {
+	    	var currentTribune = tribunesClient[i];
+	    	self.tribunes.push({ id: ++i, type: currentTribune.name, price: currentTribune.price });
+	    }
+
+	    self.row = ko.observable();
+	    self.seat = ko.observable();    
+
+	    // Editable data
+	    self.seats = ko.observableArray([
+	            new SeatReservation("","","","")
+	        ]);
+	    
+	    self.reserveCount = ko.computed(function() {
+	       var total = 0;
+	       for (var i = 0; i < self.seats().length; i++) {
+	           var currentSeat = self.seats()[i];
+	           var tribune = currentSeat.tribune();
+	           total += tribune != undefined && tribune.id != undefined && currentSeat.name() != ""
+	            && currentSeat.row() != "" && currentSeat.seat() != "" ? 1 : 0;
+	       }
+	       return total;
+	    });    
+
+	    // Computed data
+	    self.totalPrice = ko.computed(function() {
+	       var total = 0;
+	       for (var i = 0; i < self.seats().length; i++) {
+	            var tribune = self.seats()[i].tribune();
+	           total += tribune != undefined ? tribune.price : 0;
+	       }
+	       return total;
+	    });    
+
+	    // Operations
+	    self.addSeat = function() {
+	        self.seats.push(new SeatReservation("", "", "", ""));
+
+	    }
+
+	self.saveSeat = function() {
+
+		for (var i = 0; i < self.seats().length; i++) {
+			var currentSeat = self.seats()[i];
+
+			$.post( "book", {
+				name1: currentSeat.name(),
+				tribune1: currentSeat.tribune().type,
+				row1: currentSeat.row()-1,
+				seat1: currentSeat.seat()-1,
+			}).done(function(data) {
+				alert(data);
+			});
+		}
+
+		
+
+	    
+	   
+	}
+	    self.removeSeat = function(seat) { self.seats.remove(seat); }
+	}
+
+
+	$(function() {
+	    ko.applyBindings(new BookingViewModel());
+	});
+
+	ko.bindingHandlers.numeric = {
+	    init: function (element, valueAccessor) {
+	        $(element).on("keydown", function (event) {
+	            // Allow: backspace, delete, tab, escape, and enter
+	            if (event.keyCode == 46 || event.keyCode == 8 || event.keyCode == 9 || event.keyCode == 27 || event.keyCode == 13 ||
+	                // Allow: Ctrl+A
+	                (event.keyCode == 65 && event.ctrlKey === true) ||
+	                // Allow: home, end, left, right
+	                (event.keyCode >= 35 && event.keyCode <= 39)) {
+	                // let it happen, don't do anything
+	                return;
+	            }
+	            else {
+	                // Ensure that it is a number and stop the keypress
+	                if (event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105)) {
+	                    event.preventDefault();
+	                }
+	            }
+	        });
+	    }
+	};
+</script>
+
+</head>
+</html>
