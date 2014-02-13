@@ -1,0 +1,62 @@
+<html>
+<body>
+<table>
+	<thead>
+        <tr>
+	        <th>Firstname</th>
+	        <th>Lastname</th>
+	        <th>Sum</th>
+	    </tr>
+	 </thead>
+	    <tbody data-bind="foreach: list">
+	    <tr>
+	    	   <td><input type='text' data-bind="value: firstname" /></td>
+	    	   <td><input type='text' data-bind="value: lastname" /></td>
+	    	   <td data-bind="text:sum "</td>
+	    </tr>
+	    </tbody>
+</table>
+      <button data-bind="click: calculate"> SumOfCharacters</button>
+	  <button data-bind="click: addRow"> Add</button>  
+
+
+	   </body>
+<script src="javascripts/knockout.js"></script>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+
+
+<script>
+	function User(firstname,lastname,sum) 
+	{
+       var self = this;
+       self.firstname = ko.observable(firstname);
+       self.lastname = ko.observable(lastname);
+       self.sum = ko.observable();
+
+	}
+	function UsersViewModel()
+	{
+		var self = this;
+       	self.list = ko.observableArray([new User("","","")]);
+        self.addRow = function() {
+	        self.list.push(new User("", "",""));
+
+	    }
+	    self.calculate = function() { 
+
+	    	var current = self.list()[self.list().length-1];
+	    			    	$.post( "calculateSum", { 
+		    		first : current.firstname(),
+		    		last  : current.lastname()
+		    	},function(data) 
+		    	{ self.list()[self.list().length-1].sum(data);
+		    	   console.log(data);	
+		    	});
+		    }
+		
+    };
+	
+	    ko.applyBindings(new UsersViewModel());
+
+</script>
+</html>
